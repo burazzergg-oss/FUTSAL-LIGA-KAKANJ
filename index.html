@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moja Futsal Liga</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
+header{background:#111827;color:white;padding:28px 18px;text-align:center}
+header h1{margin:0 0 6px;font-size:32px}header p{margin:0;color:#d1d5db}
+nav{background:white;display:flex;justify-content:center;gap:8px;padding:10px;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px #0001}
+nav button{border:0;background:#e5e7eb;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:bold}
+nav button.active{background:#111827;color:white}
+main{max-width:1000px;margin:25px auto;padding:0 15px}.tab{display:none}.tab.active{display:block}
+.card{background:white;border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 2px 10px #0000000d}
+h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{padding:11px 8px;border-bottom:1px solid #e5e7eb;text-align:center}th{background:#f9fafb}
+td:first-child,th:first-child{text-align:left}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#e5e7eb;font-size:12px}
+.match{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e5e7eb;border-radius:10px;padding:13px;margin:9px 0}
+.team{font-weight:bold;flex:1}.team:last-child{text-align:right}.score{font-size:20px;font-weight:bold;white-space:nowrap}
+.hero{background:linear-gradient(135deg,#111827,#374151);color:white;border-radius:16px;padding:25px;margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#f9fafb;border-radius:12px;padding:15px;text-align:center}.stat b{display:block;font-size:25px}
+@media(max-width:600px){header h1{font-size:25px}.stats{grid-template-columns:1fr}.match{font-size:14px}}
+footer{text-align:center;padding:30px;color:#6b7280}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="leagueName">Moja Futsal Liga</h1>
+  <p>Rezultati • Tabela • Raspored • Strijelci</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('pocetna',this)">Početna</button>
+  <button onclick="showTab('tabela',this)">Tabela</button>
+  <button onclick="showTab('raspored',this)">Raspored</button>
+  <button onclick="showTab('strijelci',this)">Strijelci</button>
+  <button onclick="showTab('ekipe',this)">Ekipe</button>
+</nav>
+
+<main>
+<section id="pocetna" class="tab active">
+  <div class="hero">
+    <h2>Dobro došli!</h2>
+    <p>Ovdje pratiš svoju futsal ligu na jednom mjestu.</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><b id="teamCount">6</b>Ekipe</div>
+    <div class="stat"><b id="matchCount">3</b>Odigrane utakmice</div>
+    <div class="stat"><b id="goalCount">18</b>Golovi</div>
+  </div>
+  <div class="card">
+    <h2>Posljednji rezultati</h2>
+    <div id="latest"></div>
+  </div>
+</section>
+
+<section id="tabela" class="tab">
+  <div class="card"><h2>Tabela</h2>
+  <div class="table-wrap"><table><thead><tr><th>#</th><th>Ekipa</th><th>U</th><th>P</th><th>N</th><th>I</th><th>DG</th><th>GR</th><th>B</th></tr></thead>
+  <tbody id="tableBody"></tbody></table></div></div>
+</section>
+
+<section id="raspored" class="tab">
+  <div class="card"><h2>Raspored i rezultati</h2><div id="schedule"></div></div>
+</section>
+
+<section id="strijelci" class="tab">
+  <div class="card"><h2>Najbolji strijelci</h2>
+  <div class="table-wrap"><table><thead><tr><th>#</th><th>Igrač</th><th>Ekipa</th><th>Golovi</th></tr></thead>
+  <tbody id="scorers"></tbody></table></div></div>
+</section>
+
+<section id="ekipe" class="tab">
+  <div class="card"><h2>Ekipe</h2><div id="teams"></div></div>
+</section>
+</main>
+<footer>Moja Futsal Liga • Napravljeno za tvoju ligu</footer>
+
+<script>
+const teams=["FK Lavovi","MNK Mostar","FC Arena","FK Zmaj","MNK Vihor","FC Orlovi"];
+const matches=[
+ {date:"14.08.2026",time:"19:00",home:"FK Lavovi",away:"MNK Mostar",hs:4,as:2,played:true},
+ {date:"15.08.2026",time:"20:00",home:"FC Arena",away:"FK Zmaj",hs:3,as:3,played:true},
+ {date:"16.08.2026",time:"19:30",home:"MNK Vihor",away:"FC Orlovi",hs:2,as:4,played:true},
+ {date:"18.08.2026",time:"20:00",home:"FK Lavovi",away:"FC Arena",played:false},
+ {date:"19.08.2026",time:"19:00",home:"MNK Mostar",away:"FK Zmaj",played:false},
+ {date:"20.08.2026",time:"20:00",home:"FC Orlovi",away:"MNK Vihor",played:false}
+];
+const scorers=[
+ ["Amar K.","FK Lavovi",5],["Adnan M.","FC Orlovi",4],["Haris S.","MNK Mostar",3],
+ ["Dino P.","FC Arena",3],["Kerim H.","FK Zmaj",2],["Emin R.","MNK Vihor",1]
+];
+
+function showTab(id,btn){
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+ btn.classList.add("active");
+}
+function standings(){
+ let s={};teams.forEach(t=>s[t]={u:0,p:0,n:0,i:0,dg:0,ga:0,b:0});
+ matches.filter(m=>m.played).forEach(m=>{
+   let a=s[m.home],b=s[m.away]; a.u++;b.u++;a.dg+=m.hs;b.dg+=m.as;a.ga+=m.as;b.ga+=m.hs;
+   if(m.hs>m.as){a.p++;a.b+=3;b.i++} else if(m.hs<m.as){b.p++;b.b+=3;a.i++} else {a.n++;b.n++;a.b++;b.b++}
+ });
+ return Object.entries(s).sort((x,y)=>y[1].b-x[1].b || (y[1].dg-y[1].ga)-(x[1].dg-x[1].ga));
+}
+function render(){
+ let st=standings();
+ tableBody.innerHTML=st.map((x,i)=>`<tr><td>${i+1}</td><td><b>${x[0]}</b></td><td>${x[1].u}</td><td>${x[1].p}</td><td>${x[1].n}</td><td>${x[1].i}</td><td>${x[1].dg}:${x[1].ga}</td><td>${x[1].dg-x[1].ga}</td><td><b>${x[1].b}</b></td></tr>`).join("");
+ schedule.innerHTML=matches.map(m=>`<div class="match"><div><span class="badge">${m.date}</span><br>${m.time}</div><div class="team">${m.home}</div><div class="score">${m.played?m.hs+" : "+m.as:" - "}</div><div class="team">${m.away}</div></div>`).join("");
+ latest.innerHTML=matches.filter(m=>m.played).slice(-3).reverse().map(m=>`<div class="match"><div class="team">${m.home}</div><div class="score">${m.hs}:${m.as}</div><div class="team">${m.away}</div></div>`).join("");
+ scorers.innerHTML=scorers.map((s,i)=>`<tr><td>${i+1}</td><td>${s[0]}</td><td>${s[1]}</td><td><b>${s[2]}</b></td></tr>`).join("");
+ teamsDiv=document.getElementById("teams"); teamsDiv.innerHTML=teams.map((t,i)=>`<div class="card"><b>${i+1}. ${t}</b><p>Ekipa • Futsal liga</p></div>`).join("");
+ teamCount.textContent=teams.length;
+ matchCount.textContent=matches.filter(m=>m.played).length;
+ goalCount.textContent=matches.filter(m=>m.played).reduce((a,m)=>a+m.hs+m.as,0);
+}
+render();
+</script>
+</body>
+</html>
